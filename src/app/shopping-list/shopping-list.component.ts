@@ -13,7 +13,20 @@ export class ShoppingListComponent implements OnInit {
   private itemToAdd: string = '';
 
   constructor(private myShoppingListService: ShoppingListService) {
-    this.listItems = myShoppingListService.findAll();
+    this.myShoppingListService.findAll().subscribe(
+      response => {
+        if(response) {
+        this.listItems = Object.keys(response).map(id => {
+          let item: any = response[id];
+          item.key = id;
+          return item;
+        })
+      } else {
+        this.listItems = [];
+      }
+      },
+      error => { console.error(error) }      
+    )
   }
 
   ngOnInit() {}
@@ -25,7 +38,15 @@ export class ShoppingListComponent implements OnInit {
       disabled: false
     };
     //add
-    this.myShoppingListService.add(newItem);
+    this.myShoppingListService.add(newItem)
+    .subscribe(
+      response => { 
+        newItem['key'] = response;
+        this.listItems.unshift(newItem);
+        console.log('Deu certo!');
+      },
+      error => { console.log('Deu ruim!')}
+    );
   }
 
 }
