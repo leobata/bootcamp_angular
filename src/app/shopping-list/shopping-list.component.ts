@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ShoppingListService } from '../shopping-list.service';
+import { Observable } from 'rxjs/observable';
 
 @Component({
   selector: 'app-shopping-list',
@@ -8,28 +9,30 @@ import { ShoppingListService } from '../shopping-list.service';
 })
 export class ShoppingListComponent implements OnInit {
 
-  private listItems: Array<any>;
+  private listItems: Observable<any[]>;
 
   private itemToAdd: string = '';
 
   constructor(private myShoppingListService: ShoppingListService) {
-    this.myShoppingListService.findAll().subscribe(
-      response => {
-        if(response) {
-        this.listItems = Object.keys(response).map(id => {
-          let item: any = response[id];
-          item.key = id;
-          return item;
-        })
-      } else {
-        this.listItems = [];
-      }
-      },
-      error => { console.error(error) }      
-    )
+    // this.myShoppingListService.findAll().subscribe(
+    //   response => {
+    //     if(response) {
+    //     this.listItems = Object.keys(response).map(id => {
+    //       let item: any = response[id];
+    //       item.key = id;
+    //       return item;
+    //     })
+    //   } else {
+    //     this.listItems = [];
+    //   }
+    //   },
+    //   error => { console.error(error) }      
+    // )
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.listItems = this.myShoppingListService.listItemsFb;
+  }
 
   private addObjectToList() {
     //criar
@@ -38,15 +41,7 @@ export class ShoppingListComponent implements OnInit {
       disabled: false
     };
     //add
-    this.myShoppingListService.add(newItem)
-    .subscribe(
-      response => { 
-        newItem['key'] = response;
-        this.listItems.unshift(newItem);
-        console.log('Deu certo!');
-      },
-      error => { console.log('Deu ruim!')}
-    );
+    this.myShoppingListService.add(newItem);
   }
 
 }

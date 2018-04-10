@@ -2,57 +2,54 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observable } from 'rxjs/Observable';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
 
 @Injectable()
 export class ShoppingListService {
 
   private listItems: Array<any>;
+  public listItemsFb: Observable<any[]>;
+  private itemsRef: AngularFireList<any>;
 
-  constructor(private httpClient: HttpClient) {
-    // this.listItems = [{
-    //   name: 'Bread',
-    //   disabled: false
-    // },
-    // {
-    //   name: 'Butter',
-    //   disabled: false
-    // },
-    // {
-    //   name: 'Coffee',
-    //   disabled: false
-    // },
-    // {
-    //   name: 'Cookies',
-    //   disabled: true
-    // }];
-   }
+  constructor(private httpClient: HttpClient, private db: AngularFireDatabase) {
+    this.itemsRef = this.db.list('items');
 
-   /**
-    * findAll
-  : Array<any>   */
-   public findAll() : Observable<Object> {
-     //return this.listItems;
-     return this.httpClient.get(`${environment.firebase.databaseURL}/items.json`);
-   }
+    this.listItemsFb = this.itemsRef.snapshotChanges().map(
+      changes => {
+        return changes.map( c => {
+          console.log(c.payload.val());
 
-   public add(item): Observable<Object> {
-     //this.listItems.unshift(item);
-    return this.httpClient.post(`${environment.firebase.databaseURL}/items.json`, item);
-   }
+          return ({
+            key: c.payload.key,
+            name: c.payload.val()['name'],
+            disabled: c.payload.val()['disabled']
+          })
+        })
+      }
+    )
+  }
 
-   public remove(item): Observable<Object> {
-    //  let index = this.listItems.indexOf(item);
-    //  this.listItems.splice(index, 1);
-    return this.httpClient.delete(`${environment.firebase.databaseURL}/items/${item.key}.json`);
-   }
-
-  //  public cross(item) {
-  //    let index = this.listItems.indexOf(item);
-  //    this.listItems[index].disabled = true;
+  //  public findAll() : Observable<Object> {
+     
   //  }
 
-   public edit(item): Observable<Object> {
-    return this.httpClient.put(`${environment.firebase.databaseURL}/items/${item.key}.json`, item);
+   public add(item) {
+    this.itemsRef.push(item);
+   }
+
+   public remove(item) {
+     this.itemsRef.remove(item.key);
+   }
+
+   public removeAll() {
+    this.itemsRef.remove();
+  }
+
+   public edit(item) {
+    let key = item.key;
+    delete item.key;
+
+    this.itemsRef.update(key, item);
    }
 
 }
