@@ -6,11 +6,11 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyCTPRmlSaVjugAZ_xCylenhTuB_d1jje-o",
-    authDomain: "vntlebo-shopping-list.firebaseapp.com",
-    databaseURL: "https://vntlebo-shopping-list.firebaseio.com",
-    projectId: "vntlebo-shopping-list",
-    storageBucket: "vntlebo-shopping-list.appspot.com",
-    messagingSenderId: "740552102043"
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: ""
   }
 };
